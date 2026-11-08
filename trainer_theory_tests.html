@@ -1,0 +1,3519 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="catppuccin">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Go Practice — тесты по теории</title>
+
+    <!-- Inter + JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           TOKENS
+           ============================================================ */
+        :root {
+            --radius-lg: 18px;
+            --radius-md: 14px;
+            --radius-sm: 9px;
+
+            --fs-ui: 14px;
+            --fs-base: 15px;
+
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-code: 'JetBrains Mono', ui-monospace, SFMono-Regular, Consolas, monospace;
+        }
+
+        /* ============================================================
+           THEMES
+           ============================================================ */
+
+        :root[data-theme="gruvbox"] {
+            --bg:#282828; --bg2:#1D2021;
+            --panel:#32302F; --panel2:#3C3836;
+            --border:#504945;
+            --text:#EBDBB2; --text-strong:#FBF1C7; --muted:#A89984;
+            --accent:#83A598; --accent-soft:rgba(131,165,152,.16);
+            --green:#B8BB26; --yellow:#FABD2F; --red:#FB4934;
+            --glow1:rgba(131,165,152,.10); --glow2:rgba(250,189,47,.05);
+            --opt-bg:rgba(29,32,33,.72);
+            --code-bg:#1D2021;
+            --shadow:0 8px 30px -10px rgba(0,0,0,.8);
+        }
+
+        /* ---- Everforest Dark Medium ---- */
+        :root[data-theme="everforest"] {
+            --bg: #2D353B;
+            --panel: #343F44;
+            --panel-alt: #3D484D;
+            --panel-hover: #475258;
+
+            --border: #475258;
+            --border-hover: #A7C080;
+
+            --text: #D3C6AA;
+            --text-strong: #E4DCC2;
+            --muted: #859289;
+
+            --accent: #A7C080;
+            --accent-soft: rgba(167, 192, 128, .16);
+
+            --green: #A7C080;
+            --yellow: #DBBC7F;
+            --red: #E67E80;
+
+            --glow1: rgba(167, 192, 128, .10);
+            --glow2: rgba(219, 188, 127, .05);
+
+            --hl-comment: #859289;
+            --hl-string: #A7C080;
+            --hl-char: #E69875;
+            --hl-preproc: #83C092;
+
+            --hl-keyword: #E67E80;
+            --hl-type: #D3C6AA;
+            --hl-number: #D699B6;
+            --hl-func: #A7C080;
+
+            --code-block-bg: #272E33;
+            --table-header: #3D484D;
+
+            --shadow: 0 4px 20px -8px rgba(0, 0, 0, .8);
+            --shadow-hover: 0 8px 30px -8px rgba(0, 0, 0, .95);
+
+            --yellow-dim: #8C7851;
+            --reveal-hover: rgba(219, 188, 127, .08);
+
+            --green-dim: #52684A;
+            --done-hover: rgba(167, 192, 128, .08);
+        }
+
+        :root[data-theme="catppuccin"] {
+            --bg:#1e1e2e; --bg2:#11111b;
+            --panel:#181825; --panel2:#313244;
+            --border:#45475a;
+            --text:#bac2de; --text-strong:#cdd6f4; --muted:#a6adc8;
+            --accent:#89b4fa; --accent-soft:rgba(137,180,250,.15);
+            --green:#a6e3a1; --yellow:#f9e2af; --red:#f38ba8;
+            --glow1:rgba(137,180,250,.08); --glow2:rgba(166,227,161,.05);
+            --opt-bg:rgba(17,17,27,.72);
+            --code-bg:#11111b;
+            --shadow:0 8px 28px -10px rgba(0,0,0,.75);
+        }
+
+        :root[data-theme="kanagawa"] {
+            --bg:#1F1F28; --bg2:#16161D;
+            --panel:#2A2A37; --panel2:#363646;
+            --border:#54546D;
+            --text:#DCD7BA; --text-strong:#F2E9DE; --muted:#957FB8;
+            --accent:#7FB4CA; --accent-soft:rgba(127,180,202,.15);
+            --green:#98BB6C; --yellow:#E6C384; --red:#E82424;
+            --glow1:rgba(126,156,216,.07); --glow2:rgba(152,187,108,.05);
+            --opt-bg:rgba(22,22,29,.72);
+            --code-bg:#16161D;
+            --shadow:0 8px 28px -10px rgba(0,0,0,.68);
+        }
+
+        :root[data-theme="nord"] {
+            --bg:#2E3440; --bg2:#292E39;
+            --panel:#3B4252; --panel2:#434C5E;
+            --border:#4C566A;
+            --text:#E5E9F0; --text-strong:#ECEFF4; --muted:#8FA1B3;
+            --accent:#88C0D0; --accent-soft:rgba(136,192,208,.15);
+            --green:#A3BE8C; --yellow:#EBCB8B; --red:#BF616A;
+            --glow1:rgba(94,129,172,.15); --glow2:rgba(163,190,140,.08);
+            --opt-bg:rgba(41,46,57,.72);
+            --code-bg:#292E39;
+            --shadow:0 8px 28px -10px rgba(0,0,0,.6);
+        }
+
+        :root[data-theme="dracula"] {
+            --bg:#282A36; --bg2:#21222C;
+            --panel:#343746; --panel2:#44475A;
+            --border:#50536B;
+            --text:#F8F8F2; --text-strong:#FFFFFF; --muted:#A9B1C6;
+            --accent:#BD93F9; --accent-soft:rgba(189,147,249,.15);
+            --green:#50FA7B; --yellow:#F1FA8C; --red:#FF5555;
+            --glow1:rgba(189,147,249,.10); --glow2:rgba(80,250,123,.06);
+            --opt-bg:rgba(33,34,44,.72);
+            --code-bg:#21222C;
+            --shadow:0 8px 28px -10px rgba(0,0,0,.72);
+        }
+
+        :root[data-theme="dark"] {
+            --bg:#0D1117; --bg2:#010409;
+            --panel:#161B22; --panel2:#1C222C;
+            --border:#30363D;
+            --text:#C9D1D9; --text-strong:#F0F6FC; --muted:#8B949E;
+            --accent:#58A6FF; --accent-soft:rgba(88,166,255,.15);
+            --green:#56D364; --yellow:#E3B341; --red:#F85149;
+            --glow1:rgba(88,166,255,.08); --glow2:rgba(86,211,100,.05);
+            --opt-bg:rgba(1,4,9,.72);
+            --code-bg:#010409;
+            --shadow:0 8px 30px -10px rgba(0,0,0,.85);
+        }
+
+        :root[data-theme="light"] {
+            --bg:#FFFFFF; --bg2:#F6F8FA;
+            --panel:#F6F8FA; --panel2:#EAEEF2;
+            --border:#D0D7DE;
+            --text:#1F2328; --text-strong:#0E1116; --muted:#59636E;
+            --accent:#0969DA; --accent-soft:rgba(9,105,218,.12);
+            --green:#1A7F37; --yellow:#9A6700; --red:#CF222E;
+            --glow1:rgba(9,105,218,.05); --glow2:rgba(26,127,55,.04);
+            --opt-bg:rgba(246,248,250,.9);
+            --code-bg:#F6F8FA;
+            --shadow:0 6px 24px -8px rgba(0,0,0,.13);
+        }
+
+
+        /* ============================================================
+           BASE
+           ============================================================ */
+
+        * {
+            box-sizing:border-box;
+            margin:0;
+            padding:0;
+        }
+
+        html {
+            scroll-behavior:smooth;
+        }
+
+        body {
+            min-height:100vh;
+            color:var(--text);
+
+            background:
+                    radial-gradient(
+                            ellipse at 10% 0%,
+                            var(--glow1),
+                            transparent 45%
+                    ),
+                    radial-gradient(
+                            ellipse at 100% 12%,
+                            var(--glow2),
+                            transparent 42%
+                    ),
+                    var(--bg);
+
+            font-family:var(--font-main);
+            font-size:var(--fs-ui);
+            line-height:1.55;
+
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            text-rendering:optimizeLegibility;
+
+            transition:
+                    background .3s ease,
+                    color .3s ease;
+        }
+
+        button,
+        input,
+        select {
+            font:inherit;
+        }
+
+        button {
+            cursor:pointer;
+            border:1px solid var(--border);
+            border-radius:var(--radius-sm);
+            background:var(--panel);
+            color:var(--text);
+            transition:
+                    background .16s,
+                    border-color .16s,
+                    color .16s,
+                    transform .16s,
+                    filter .16s;
+        }
+
+        button:hover:not(:disabled) {
+            background:var(--panel2);
+            border-color:var(--accent);
+            transform:translateY(-1px);
+        }
+
+        button:active:not(:disabled) {
+            transform:scale(.98);
+        }
+
+        button:disabled {
+            cursor:default;
+            opacity:.55;
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline:2px solid var(--accent);
+            outline-offset:2px;
+        }
+
+        code {
+            font-family:var(--font-code);
+            background:var(--code-bg);
+            padding:2px 6px;
+            border-radius:5px;
+            font-size:.9em;
+            color:var(--accent);
+        }
+
+        ::-webkit-scrollbar {
+            width:8px;
+            height:8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background:transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background:var(--border);
+            border-radius:4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background:var(--muted);
+        }
+
+
+        /* ============================================================
+           WRAP
+           ============================================================ */
+
+        .wrap {
+            width:min(980px,100%);
+            margin:0 auto;
+            padding:36px 20px 80px;
+        }
+
+
+        /* ============================================================
+           SETTINGS
+           ============================================================ */
+
+        .settings {
+            position:fixed;
+            top:18px;
+            right:18px;
+            z-index:50;
+
+            display:flex;
+            align-items:center;
+            gap:9px;
+
+            padding:8px 10px;
+
+            border:1px solid var(--border);
+            border-radius:14px;
+
+            background:color-mix(
+                    in srgb,
+                    var(--panel) 92%,
+                    transparent
+            );
+
+            backdrop-filter:blur(14px);
+            box-shadow:var(--shadow);
+        }
+
+        .theme-select {
+            min-width:145px;
+            padding:7px 28px 7px 9px;
+
+            border:1px solid var(--border);
+            border-radius:8px;
+
+            background:var(--panel2);
+            color:var(--text);
+
+            font-size:12px;
+            cursor:pointer;
+            outline:none;
+        }
+
+        .theme-select:hover {
+            border-color:var(--accent);
+        }
+
+        .font-control {
+            display:flex;
+            align-items:center;
+            gap:8px;
+
+            color:var(--muted);
+            font-size:11px;
+            white-space:nowrap;
+        }
+
+        .font-slider {
+            width:85px;
+            height:4px;
+
+            -webkit-appearance:none;
+            appearance:none;
+
+            background:var(--border);
+            border-radius:2px;
+            outline:none;
+        }
+
+        .font-slider::-webkit-slider-thumb {
+            width:13px;
+            height:13px;
+
+            -webkit-appearance:none;
+            appearance:none;
+
+            border:none;
+            border-radius:50%;
+
+            background:var(--accent);
+            cursor:pointer;
+        }
+
+        .font-slider::-moz-range-thumb {
+            width:13px;
+            height:13px;
+
+            border:none;
+            border-radius:50%;
+
+            background:var(--accent);
+            cursor:pointer;
+        }
+
+
+        /* ============================================================
+           HERO
+           ============================================================ */
+
+        .hero {
+            text-align:center;
+            margin-bottom:38px;
+            padding-top:24px;
+        }
+
+        .eyebrow {
+            color:var(--accent);
+            text-transform:uppercase;
+            letter-spacing:.18em;
+            font-size:11px;
+            font-weight:800;
+            margin-bottom:10px;
+        }
+
+        .hero h1 {
+            color:var(--text-strong);
+            font-size:clamp(28px,5vw,44px);
+            letter-spacing:-.04em;
+            line-height:1.1;
+        }
+
+        .hero p {
+            color:var(--muted);
+            margin-top:13px;
+            max-width:600px;
+            margin-inline:auto;
+            font-size:var(--fs-base);
+        }
+
+
+        /* ============================================================
+           TOPIC GRID
+           ============================================================ */
+
+        .grid {
+            display:grid;
+            grid-template-columns:
+                repeat(auto-fill,minmax(210px,1fr));
+            gap:14px;
+        }
+
+        .topic {
+            width:100%;
+            padding:20px;
+
+            border-radius:18px;
+            background:var(--panel);
+
+            text-align:left;
+            box-shadow:var(--shadow);
+
+            position:relative;
+        }
+
+        .topic:hover {
+            border-color:var(--accent);
+            transform:translateY(-3px);
+        }
+
+        .t-icon {
+            font-size:26px;
+            display:block;
+            margin-bottom:10px;
+        }
+
+        .t-name {
+            color:var(--text-strong);
+            font-size:16px;
+            font-weight:700;
+            letter-spacing:-.02em;
+            margin-bottom:4px;
+        }
+
+        .t-count {
+            color:var(--muted);
+            font-size:12.5px;
+        }
+
+        .t-note {
+            margin-top:9px;
+            padding:4px 8px;
+
+            border-radius:7px;
+
+            font-size:10.5px;
+
+            background:
+                    color-mix(
+                            in srgb,
+                            var(--yellow) 14%,
+                            transparent
+                    );
+
+            color:var(--yellow);
+
+            display:inline-block;
+        }
+
+        .topic.special {
+            border-color:
+                    color-mix(
+                            in srgb,
+                            var(--yellow) 40%,
+                            var(--border)
+                    );
+        }
+
+
+        /* ============================================================
+           RANDOM PANEL
+           ============================================================ */
+
+        .rnd {
+            margin-top:26px;
+            padding:22px;
+
+            border:1px solid var(--border);
+            border-radius:18px;
+
+            background:var(--panel);
+            box-shadow:var(--shadow);
+        }
+
+        .rnd h2 {
+            color:var(--text-strong);
+            font-size:17px;
+            margin-bottom:5px;
+        }
+
+        .rnd .sub {
+            color:var(--muted);
+            font-size:13px;
+            margin-bottom:16px;
+        }
+
+        .rnd-row {
+            display:flex;
+            flex-wrap:wrap;
+            gap:13px;
+            align-items:center;
+        }
+
+        .cnt {
+            display:flex;
+            align-items:center;
+            gap:9px;
+        }
+
+        .cnt span {
+            color:var(--muted);
+            font-size:14px;
+        }
+
+        .cnt input {
+            width:76px;
+            padding:9px;
+
+            border:1px solid var(--border);
+            border-radius:10px;
+
+            background:var(--bg2);
+            color:var(--text);
+
+            text-align:center;
+            outline:none;
+        }
+
+        .chk {
+            display:flex;
+            align-items:center;
+            gap:8px;
+
+            color:var(--muted);
+            cursor:pointer;
+
+            font-size:13px;
+        }
+
+        .chk input {
+            width:17px;
+            height:17px;
+
+            accent-color:var(--accent);
+            cursor:pointer;
+        }
+
+        .primary {
+            background:var(--accent);
+            color:var(--bg);
+            border-color:var(--accent);
+
+            font-weight:700;
+            padding:11px 20px;
+        }
+
+        .primary:hover:not(:disabled) {
+            filter:brightness(1.1);
+        }
+
+
+        /* ============================================================
+           QUIZ HEADER
+           ============================================================ */
+
+        .qhead {
+            position:sticky;
+            top:0;
+            z-index:30;
+
+            padding:14px 0 12px;
+            margin-bottom:20px;
+
+            background:
+                    linear-gradient(
+                            to bottom,
+                            var(--bg) 70%,
+                            transparent
+                    );
+
+            backdrop-filter:blur(6px);
+        }
+
+        .qbar {
+            display:flex;
+            align-items:center;
+            gap:11px;
+            flex-wrap:wrap;
+            margin-bottom:11px;
+        }
+
+        .qbar .back {
+            padding:7px 13px;
+            font-size:13px;
+        }
+
+        .qbar .title {
+            color:var(--text-strong);
+            font-weight:700;
+            font-size:15.5px;
+            margin-right:auto;
+        }
+
+        .pill {
+            padding:5px 11px;
+            border-radius:20px;
+            font-size:12.5px;
+            font-weight:700;
+        }
+
+        .pill.ok {
+            background:
+                    color-mix(
+                            in srgb,
+                            var(--green) 15%,
+                            transparent
+                    );
+            color:var(--green);
+        }
+
+        .pill.bad {
+            background:
+                    color-mix(
+                            in srgb,
+                            var(--red) 15%,
+                            transparent
+                    );
+            color:var(--red);
+        }
+
+        .prog {
+            height:5px;
+            background:var(--panel2);
+            border-radius:4px;
+            overflow:hidden;
+        }
+
+        .prog-fill {
+            height:100%;
+
+            background:
+                    linear-gradient(
+                            90deg,
+                            var(--accent),
+                            var(--green)
+                    );
+
+            border-radius:4px;
+
+            transition:
+                    width .4s cubic-bezier(.4,0,.2,1);
+        }
+
+
+        /* ============================================================
+           QUESTION CARDS
+           ============================================================ */
+
+        .stack {
+            display:flex;
+            flex-direction:column;
+            gap:18px;
+        }
+
+        .card {
+            padding:24px;
+
+            border:1px solid var(--border);
+            border-radius:18px;
+
+            background:var(--panel);
+            box-shadow:var(--shadow);
+
+            animation:
+                    slideIn .45s cubic-bezier(.2,.8,.3,1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity:0;
+                transform:translateY(22px);
+            }
+
+            to {
+                opacity:1;
+                transform:none;
+            }
+        }
+
+        .card.done {
+            opacity:.92;
+        }
+
+        .card.done:hover {
+            opacity:1;
+        }
+
+        .q-top {
+            display:flex;
+            align-items:center;
+            gap:8px;
+            flex-wrap:wrap;
+            margin-bottom:9px;
+        }
+
+        .q-num {
+            color:var(--accent);
+            font-size:11px;
+            font-weight:800;
+            letter-spacing:.1em;
+            text-transform:uppercase;
+        }
+
+        .tag {
+            padding:3px 9px;
+            border-radius:7px;
+            font-size:10.5px;
+            font-weight:600;
+        }
+
+        .tag.multi {
+            background:
+                    color-mix(
+                            in srgb,
+                            var(--accent) 14%,
+                            transparent
+                    );
+            color:var(--accent);
+        }
+
+        .tag.src {
+            background:
+                    color-mix(
+                            in srgb,
+                            var(--yellow) 14%,
+                            transparent
+                    );
+            color:var(--yellow);
+        }
+
+        .tag.topic {
+            background:var(--panel2);
+            color:var(--muted);
+        }
+
+        .q-text {
+            color:var(--text-strong);
+            font-size:calc(var(--fs-base) + 3px);
+            font-weight:650;
+            letter-spacing:-.02em;
+            line-height:1.38;
+            margin-bottom:16px;
+        }
+
+        .opts {
+            display:flex;
+            flex-direction:column;
+            gap:9px;
+        }
+
+        .opt {
+            display:flex;
+            align-items:flex-start;
+            gap:12px;
+
+            padding:14px 16px;
+            text-align:left;
+
+            border-radius:13px;
+
+            background:var(--opt-bg);
+            width:100%;
+        }
+
+        .opt:hover:not(:disabled) {
+            border-color:var(--accent);
+        }
+
+        .opt:disabled {
+            transform:none;
+        }
+
+        .okey {
+            flex-shrink:0;
+
+            width:25px;
+            height:25px;
+
+            border-radius:8px;
+
+            background:var(--panel2);
+
+            display:grid;
+            place-items:center;
+
+            font-family:var(--font-code);
+            font-size:11.5px;
+            font-weight:800;
+
+            color:var(--muted);
+        }
+
+        .otext {
+            flex:1;
+            font-size:var(--fs-base);
+        }
+
+        .omark {
+            flex-shrink:0;
+            font-size:17px;
+            font-weight:800;
+            opacity:0;
+            transition:.2s;
+        }
+
+        .opt.sel {
+            border-color:var(--accent);
+            background:
+                    color-mix(
+                            in srgb,
+                            var(--accent) 9%,
+                            transparent
+                    );
+        }
+
+        .opt.sel .okey {
+            background:var(--accent);
+            color:var(--bg);
+        }
+
+        .opt.right {
+            border-color:var(--green);
+            background:
+                    color-mix(
+                            in srgb,
+                            var(--green) 10%,
+                            transparent
+                    );
+        }
+
+        .opt.right .okey {
+            background:var(--green);
+            color:var(--bg);
+        }
+
+        .opt.right .omark {
+            opacity:1;
+            color:var(--green);
+        }
+
+        .opt.bad {
+            border-color:var(--red);
+            background:
+                    color-mix(
+                            in srgb,
+                            var(--red) 10%,
+                            transparent
+                    );
+        }
+
+        .opt.bad .okey {
+            background:var(--red);
+            color:var(--bg);
+        }
+
+        .opt.bad .omark {
+            opacity:1;
+            color:var(--red);
+        }
+
+        .opt.miss {
+            border-color:var(--yellow);
+            background:
+                    color-mix(
+                            in srgb,
+                            var(--yellow) 9%,
+                            transparent
+                    );
+        }
+
+        .opt.miss .omark {
+            opacity:1;
+            color:var(--yellow);
+        }
+
+
+        /* ============================================================
+           EXPLANATION
+           ============================================================ */
+
+        .exp {
+            margin-top:17px;
+            border-radius:14px;
+            overflow:hidden;
+
+            animation:
+                    expand .4s cubic-bezier(.2,.8,.3,1);
+        }
+
+        @keyframes expand {
+            from {
+                opacity:0;
+                max-height:0;
+            }
+
+            to {
+                opacity:1;
+                max-height:700px;
+            }
+        }
+
+        .exp-head {
+            padding:11px 16px;
+
+            font-weight:700;
+            font-size:14px;
+
+            display:flex;
+            align-items:center;
+            gap:8px;
+        }
+
+        .exp.ok .exp-head {
+            background:
+                    color-mix(
+                            in srgb,
+                            var(--green) 13%,
+                            transparent
+                    );
+            color:var(--green);
+        }
+
+        .exp.no .exp-head {
+            background:
+                    color-mix(
+                            in srgb,
+                            var(--red) 13%,
+                            transparent
+                    );
+            color:var(--red);
+        }
+
+        .exp-body {
+            padding:14px 16px;
+
+            background:var(--opt-bg);
+
+            font-size:var(--fs-base);
+            line-height:1.6;
+        }
+
+        .exp-right {
+            margin-bottom:9px;
+            padding-bottom:9px;
+            border-bottom:1px solid var(--border);
+        }
+
+        .exp-right b {
+            color:var(--green);
+        }
+
+        .exp-why {
+            color:var(--muted);
+        }
+
+        .exp-why b {
+            color:var(--text);
+            font-weight:650;
+        }
+
+        .next-wrap {
+            margin-top:16px;
+        }
+
+        .next-btn {
+            padding:11px 22px;
+        }
+
+
+        /* ============================================================
+           RESULTS
+           ============================================================ */
+
+        .res {
+            text-align:center;
+            padding:40px 26px;
+
+            border:1px solid var(--border);
+            border-radius:20px;
+
+            background:var(--panel);
+            box-shadow:var(--shadow);
+
+            animation:slideIn .5s;
+        }
+
+        .res-emo {
+            font-size:58px;
+            margin-bottom:12px;
+        }
+
+        .res h2 {
+            color:var(--text-strong);
+            font-size:26px;
+            letter-spacing:-.03em;
+            margin-bottom:7px;
+        }
+
+        .res .grade {
+            color:var(--muted);
+            margin-bottom:26px;
+            font-size:var(--fs-base);
+        }
+
+        .stats {
+            display:grid;
+            grid-template-columns:repeat(3,1fr);
+            gap:12px;
+            max-width:420px;
+            margin:0 auto 26px;
+        }
+
+        .stat {
+            padding:16px 10px;
+
+            border:1px solid var(--border);
+            border-radius:14px;
+
+            background:var(--opt-bg);
+        }
+
+        .sval {
+            font-size:26px;
+            font-weight:800;
+            letter-spacing:-.03em;
+        }
+
+        .slbl {
+            color:var(--muted);
+            font-size:10.5px;
+            text-transform:uppercase;
+            letter-spacing:.07em;
+            margin-top:2px;
+        }
+
+        .stat.g .sval {
+            color:var(--green);
+        }
+
+        .stat.r .sval {
+            color:var(--red);
+        }
+
+        .stat.a .sval {
+            color:var(--accent);
+        }
+
+        .res-act {
+            display:flex;
+            gap:11px;
+            justify-content:center;
+            flex-wrap:wrap;
+        }
+
+        .hidden {
+            display:none !important;
+        }
+
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+
+        @media(max-width:700px) {
+            .settings {
+                position:static;
+
+                width:100%;
+                margin-bottom:18px;
+
+                justify-content:center;
+                flex-wrap:wrap;
+            }
+
+            .hero {
+                padding-top:0;
+            }
+        }
+
+        @media(max-width:600px) {
+            .wrap {
+                padding:24px 14px 60px;
+            }
+
+            .card {
+                padding:18px;
+            }
+
+            .q-text {
+                font-size:calc(var(--fs-base) + 1px);
+            }
+
+            .stats {
+                grid-template-columns:1fr;
+                max-width:230px;
+            }
+
+            .theme-select {
+                min-width:135px;
+            }
+
+            .font-slider {
+                width:75px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+    <!-- ============================================================
+         SETTINGS
+         ============================================================ -->
+
+    <div class="settings">
+
+        <select
+                id="themeSelect"
+                class="theme-select"
+                title="Выбрать тему"
+        >
+            <option value="gruvbox">☕ Gruvbox</option>
+            <option value="everforest">🌿 Everforest</option>
+            <option value="catppuccin">🐈 Catppuccin</option>
+            <option value="kanagawa">🌊 Kanagawa</option>
+            <option value="nord">❄️ Nord</option>
+            <option value="dracula">🧛 Dracula</option>
+            <option value="dark">🌙 GitHub Dark</option>
+            <option value="light">☀️ GitHub Light</option>
+        </select>
+
+        <div class="font-control">
+            <span>Текст:</span>
+            <span id="fontVal">15</span>px
+
+            <input
+                    type="range"
+                    id="fontSlider"
+                    class="font-slider"
+                    min="12"
+                    max="22"
+                    value="15"
+                    step="1"
+            >
+        </div>
+
+    </div>
+
+
+    <!-- ============================================================
+         MENU
+         ============================================================ -->
+
+    <section id="menu">
+
+        <div class="hero">
+
+            <div class="eyebrow">
+                Go Practice / theory quiz
+            </div>
+
+            <h1>
+                Тесты по теории
+            </h1>
+
+            <p>
+                Выбери тему или собери случайный набор.
+                После каждого ответа — подробный разбор,
+                почему правильный вариант именно такой.
+            </p>
+
+        </div>
+
+
+        <div class="grid" id="topicGrid"></div>
+
+
+        <div class="rnd">
+
+            <h2>
+                🎲 Случайный набор
+            </h2>
+
+            <div class="sub">
+                Вопросы берутся понемногу из каждой выбранной темы.
+            </div>
+
+            <div class="rnd-row">
+
+                <div class="cnt">
+                    <span>Вопросов:</span>
+
+                    <input
+                            type="number"
+                            id="rndCount"
+                            value="20"
+                            min="5"
+                            max="150"
+                    >
+                </div>
+
+                <label class="chk">
+                    <input
+                            type="checkbox"
+                            id="rndWidum"
+                            checked
+                    >
+                    Включить вопросы по reflection и дженерикам
+                </label>
+
+                <button
+                        class="primary"
+                        id="rndStart"
+                >
+                    Начать
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ============================================================
+         QUIZ
+         ============================================================ -->
+
+    <section id="quiz" class="hidden">
+
+        <div class="qhead">
+
+            <div class="qbar">
+
+                <button
+                        class="back"
+                        id="quitBtn"
+                >
+                    ← Выйти
+                </button>
+
+                <span
+                        class="title"
+                        id="quizTitle"
+                ></span>
+
+                <span
+                        class="pill ok"
+                        id="pillOk"
+                >
+                    ✓ 0
+                </span>
+
+                <span
+                        class="pill bad"
+                        id="pillBad"
+                >
+                    ✗ 0
+                </span>
+
+            </div>
+
+            <div class="prog">
+                <div
+                        class="prog-fill"
+                        id="progFill"
+                        style="width:0%"
+                ></div>
+            </div>
+
+        </div>
+
+        <div
+                class="stack"
+                id="stack"
+        ></div>
+
+    </section>
+
+
+    <!-- ============================================================
+         RESULTS
+         ============================================================ -->
+
+    <section id="results" class="hidden">
+
+        <div class="res">
+
+            <div
+                    class="res-emo"
+                    id="resEmo"
+            >
+                🎉
+            </div>
+
+            <h2 id="resTitle"></h2>
+
+            <div
+                    class="grade"
+                    id="resGrade"
+            ></div>
+
+            <div class="stats">
+
+                <div class="stat g">
+                    <div
+                            class="sval"
+                            id="sOk"
+                    >
+                        0
+                    </div>
+
+                    <div class="slbl">
+                        Верно
+                    </div>
+                </div>
+
+                <div class="stat r">
+                    <div
+                            class="sval"
+                            id="sBad"
+                    >
+                        0
+                    </div>
+
+                    <div class="slbl">
+                        Ошибок
+                    </div>
+                </div>
+
+                <div class="stat a">
+                    <div
+                            class="sval"
+                            id="sPct"
+                    >
+                        0%
+                    </div>
+
+                    <div class="slbl">
+                        Результат
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="res-act">
+
+                <button
+                        class="primary"
+                        id="retryBtn"
+                >
+                    Пройти заново
+                </button>
+
+                <button id="reviewBtn">
+                    Посмотреть разбор
+                </button>
+
+                <button id="menuBtn">
+                    К списку тем
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script>
+    "use strict";
+
+
+    /* ============================================================
+       БАНК ВОПРОСОВ
+
+       q       — вопрос
+       a       — варианты
+       correct — индексы верных ответов
+       exp     — объяснение
+       ============================================================ */
+
+    const BANK = {
+
+
+        /* ============================================================
+           ОСНОВЫ GO
+           ============================================================ */
+
+        basics: {
+            icon:"🔤",
+            name:"Основы Go",
+            q:[
+
+                {
+                    q:"Где должна находиться точка входа в Go-программу?",
+                    a:[
+                        "В функции func Main()",
+                        "В функции func main() пакета package main",
+                        "В статическом методе класса Main",
+                        "В функции init()"
+                    ],
+                    correct:[1],
+                    exp:"Исполняемая программа начинается с <code>func main()</code> в пакете <code>package main</code>. Имя <code>main</code> пишется строчными буквами, а <code>init</code> — служебная функция инициализации."
+                },
+
+                {
+                    q:"Чему равно нулевое значение переменной типа int?",
+                    a:[
+                        "0",
+                        "1",
+                        "nil",
+                        "Не определено"
+                    ],
+                    correct:[0],
+                    exp:"Все переменные в Go инициализируются нулевым значением. Для чисел это <code>0</code>, для строк — <code>\"\"</code>, для указателей и интерфейсов — <code>nil</code>."
+                },
+
+                {
+                    q:"Что произойдёт, если объявить локальную переменную и не использовать её?",
+                    a:[
+                        "Предупреждение",
+                        "Ничего",
+                        "Ошибка компиляции",
+                        "Переменная станет nil"
+                    ],
+                    correct:[2],
+                    exp:"Неиспользованная локальная переменная — ошибка компиляции. Для временно ненужного значения используют пустой идентификатор: <code>_ = x</code>."
+                },
+
+                {
+                    q:"Где можно использовать короткое объявление := ?",
+                    a:[
+                        "В любом месте программы",
+                        "Только внутри функций",
+                        "Только на уровне пакета",
+                        "Только в цикле for"
+                    ],
+                    correct:[1],
+                    exp:"<code>:=</code> объявляет переменную с выводом типа и доступно только внутри функций. На уровне пакета используют <code>var</code>."
+                },
+
+                {
+                    q:"Какие имена идентификаторов экспортируются из пакета?",
+                    a:[
+                        "Все имена",
+                        "Только имена с префиксом public",
+                        "Имена, начинающиеся с заглавной буквы",
+                        "Имена, начинающиеся с подчёркивания"
+                    ],
+                    correct:[2],
+                    exp:"В Go нет ключевого слова <code>public</code>. Видимость определяется регистром первой буквы: <code>Name</code> экспортируется, <code>name</code> — нет."
+                },
+
+                {
+                    q:"Чему равно нулевое значение string?",
+                    a:[
+                        "nil",
+                        "Пустая строка \"\"",
+                        "Один пробел",
+                        "Строка \"null\""
+                    ],
+                    correct:[1],
+                    exp:"Нулевое значение строки — пустая строка <code>\"\"</code>. Строка в Go не может быть <code>nil</code>."
+                }
+            ]
+        },
+
+
+        /* ============================================================
+           ВВОД И ВЫВОД
+           ============================================================ */
+
+        io: {
+            icon:"⌨️",
+            name:"Ввод и вывод",
+            q:[
+
+                {
+                    q:"Что нужно передать в fmt.Scan, чтобы прочитать число в переменную x?",
+                    a:[
+                        "x",
+                        "&x",
+                        "*x",
+                        "fmt.Scan(x)"
+                    ],
+                    correct:[1],
+                    exp:"<code>fmt.Scan</code> изменяет переменную, поэтому принимает указатель: <code>fmt.Scan(&amp;x)</code>."
+                },
+
+                {
+                    q:"Что возвращает scanner.Text() после успешного Scan?",
+                    a:[
+                        "Строку без завершающего перевода строки",
+                        "Строку вместе с \\n",
+                        "Срез байтов",
+                        "Число"
+                    ],
+                    correct:[0],
+                    exp:"<code>bufio.Scanner</code> разбивает ввод на строки, и <code>Text()</code> возвращает строку без символа перевода строки."
+                },
+
+                {
+                    q:"Чем fmt.Println отличается от fmt.Print?",
+                    a:[
+                        "Println добавляет перевод строки в конце",
+                        "Print добавляет перевод строки",
+                        "Они полностью одинаковы",
+                        "Println работает только с числами"
+                    ],
+                    correct:[0],
+                    exp:"<code>Println</code> добавляет <code>\\n</code> после аргументов, <code>Print</code> — нет. Это важно при побайтовом сравнении вывода."
+                },
+
+                {
+                    q:"Какой глагол Printf печатает целое число?",
+                    a:[
+                        "%s",
+                        "%d",
+                        "%f",
+                        "%v — только для строк"
+                    ],
+                    correct:[1],
+                    exp:"<code>%d</code> — целое число, <code>%s</code> — строка, <code>%f</code> — дробное число, <code>%v</code> — значение по умолчанию для любого типа."
+                },
+
+                {
+                    q:"Как fmt.Scan разделяет значения во входном потоке?",
+                    a:[
+                        "По запятым",
+                        "По пробельным символам",
+                        "По точкам с запятой",
+                        "По переводам строк и только"
+                    ],
+                    correct:[1],
+                    exp:"<code>Scan</code> пропускает пробелы, табы и переводы строк, поэтому числа можно вводить в одну строку или по одному на строку."
+                },
+
+                {
+                    q:"Как прочитать целую строку вместе с пробелами?",
+                    a:[
+                        "fmt.Scan(&s)",
+                        "bufio.NewScanner(os.Stdin) и scanner.Text()",
+                        "fmt.Print(&s)",
+                        "len(s)"
+                    ],
+                    correct:[1],
+                    exp:"<code>fmt.Scan</code> читает только до пробела. Для строки целиком используют <code>bufio.Scanner</code> или <code>io.ReadAll</code>."
+                }
+            ]
+        },
+
+
+        /* ============================================================
+           ВЫРАЖЕНИЯ
+           ============================================================ */
+
+        expr: {
+            icon:"🧮",
+            name:"Выражения и вычисления",
+            q:[
+
+                {
+                    q:"Чему равно 7 / 2, если оба операнда int?",
+                    a:[
+                        "3.5",
+                        "3",
+                        "4",
+                        "Ошибка компиляции"
+                    ],
+                    correct:[1],
+                    exp:"Деление целых чисел в Go целочисленное: дробная часть отбрасывается. Результат <code>3</code>."
+                },
+
+                {
+                    q:"Чему равно -7 % 2 в Go?",
+                    a:[
+                        "1",
+                        "-1",
+                        "0",
+                        "Ошибка"
+                    ],
+                    correct:[1],
+                    exp:"Знак остатка совпадает со знаком делимого, поэтому <code>-7 % 2 == -1</code>. Для неотрицательного остатка используют <code>((x % m) + m) % m</code>."
+                },
+
+                {
+                    q:"Как получить дробный результат при делении sum / n?",
+                    a:[
+                        "float64(sum) / float64(n)",
+                        "sum / float64(n) — достаточно",
+                        "int(sum) / int(n)",
+                        "sum / n + 0.5"
+                    ],
+                    correct:[0],
+                    exp:"Оба операнда нужно привести к <code>float64</code>: <code>float64(sum)/float64(n)</code>. Иначе сначала выполнится целочисленное деление."
+                },
+
+                {
+                    q:"Каким будет результат float64(3) / 2?",
+                    a:[
+                        "1",
+                        "1.5",
+                        "2",
+                        "Ошибка компиляции"
+                    ],
+                    correct:[1],
+                    exp:"Нетипизированная константа <code>2</code> приводится к <code>float64</code>, поэтому выполняется дробное деление: <code>1.5</code>."
+                },
+
+                {
+                    q:"Что можно сказать о math.Pi?",
+                    a:[
+                        "Это функция",
+                        "Это нетипизированная числовая константа",
+                        "Это переменная типа int",
+                        "Это строка"
+                    ],
+                    correct:[1],
+                    exp:"<code>math.Pi</code> — нетипизированная константа. Она может использоваться как <code>float64</code> без явного приведения."
+                },
+
+                {
+                    q:"Что произойдёт при вычислении 5.5 % 2.0?",
+                    a:[
+                        "1.5",
+                        "1",
+                        "Ошибка компиляции: % не определён для float64",
+                        "0"
+                    ],
+                    correct:[2],
+                    exp:"Оператор <code>%</code> в Go определён только для целых типов. Для дробных используют <code>math.Mod</code>."
+                }
+            ]
+        },
+
+
+        /* ============================================================
+           ЦИКЛЫ
+           ============================================================ */
+
+        loops: {
+            icon:"🔁",
+            name:"Циклы и последовательности",
+            q:[
+
+                {
+                    q:"Какая конструкция цикла есть в Go?",
+                    a:[
+                        "Только for",
+                        "for и while",
+                        "for, while и do-while",
+                        "Только range"
+                    ],
+                    correct:[0],
+                    exp:"В Go единственный цикл — <code>for</code>. Он же заменяет <code>while</code> и бесконечный цикл: <code>for { }</code>."
+                },
+
+                {
+                    q:"Что возвращает range по срезу []int?",
+                    a:[
+                        "Только значения",
+                        "Индекс и значение",
+                        "Только индексы",
+                        "Пару (значение, индекс)"
+                    ],
+                    correct:[1],
+                    exp:"<code>for i, v := range slice</code> даёт индекс и копию значения. Если индекс не нужен, пишут <code>for _, v := range slice</code>."
+                },
+
+                {
+                    q:"Что возвращает range по строке?",
+                    a:[
+                        "Индекс байта и rune",
+                        "Индекс и byte",
+                        "Только rune",
+                        "Только символы ASCII"
+                    ],
+                    correct:[0],
+                    exp:"<code>range</code> по строке декодирует UTF-8: первый результат — индекс начала символа в байтах, второй — значение типа <code>rune</code>."
+                },
+
+                {
+                    q:"Что делает break внутри цикла?",
+                    a:[
+                        "Пропускает текущую итерацию",
+                        "Завершает цикл",
+                        "Завершает программу",
+                        "Перезапускает цикл"
+                    ],
+                    correct:[1],
+                    exp:"<code>break</code> выходит из ближайшего цикла или <code>switch</code>. Для пропуска итерации используют <code>continue</code>."
+                },
+
+                {
+                    q:"Что делает continue?",
+                    a:[
+                        "Переходит к следующей итерации",
+                        "Выходит из цикла",
+                        "Останавливает программу",
+                        "Ничего"
+                    ],
+                    correct:[0],
+                    exp:"<code>continue</code> прекращает текущую итерацию и переходит к следующей проверке условия."
+                },
+
+                {
+                    q:"Как записать бесконечный цикл?",
+                    a:[
+                        "for true {}",
+                        "for {}",
+                        "while (true) {}",
+                        "loop {}"
+                    ],
+                    correct:[1],
+                    exp:"<code>for { }</code> — бесконечный цикл. Выход из него выполняют через <code>break</code> или <code>return</code>."
+                }
+            ]
+        },
+
+
+        /* ============================================================
+           СРЕЗЫ
+           ============================================================ */
+
+        slices: {
+            icon:"📚",
+            name:"Срезы",
+            q:[
+
+                {
+                    q:"Что представляет собой срез в Go?",
+                    a:[
+                        "Массив фиксированной длины",
+                        "Дескриптор: указатель на массив, длина и ёмкость",
+                        "Связный список",
+                        "Строку"
+                    ],
+                    correct:[1],
+                    exp:"Срез — это небольшая структура из указателя на базовый массив, длины <code>len</code> и ёмкости <code>cap</code>."
+                },
+
+                {
+                    q:"Что делает append, если ёмкости среза не хватает?",
+                    a:[
+                        "Возвращает ошибку",
+                        "Выделяет новый массив и копирует элементы",
+                        "Паникует",
+                        "Ничего"
+                    ],
+                    correct:[1],
+                    exp:"При нехватке ёмкости <code>append</code> выделяет новый массив большего размера, копирует данные и возвращает новый срез."
+                },
+
+                {
+                    q:"Чему равна длина a[1:3] для среза из пяти элементов?",
+                    a:[
+                        "1",
+                        "2",
+                        "3",
+                        "4"
+                    ],
+                    correct:[1],
+                    exp:"Верхняя граница не включается: элементы с индексами 1 и 2, длина <code>2</code>."
+                },
+
+                {
+                    q:"Можно ли делать append к nil-срезу?",
+                    a:[
+                        "Да, append создаст новый срез",
+                        "Нет, будет паника",
+                        "Нет, ошибка компиляции",
+                        "Только к пустому, но не nil"
+                    ],
+                    correct:[0],
+                    exp:"<code>var s []int</code> — nil-срез. <code>append(s, 1)</code> корректно создаёт новый срез. <code>len(nil)</code> равно <code>0</code>."
+                },
+
+                {
+                    q:"Что произойдёт при b := a, если a и b — срезы?",
+                    a:[
+                        "b получит копию массива",
+                        "b и a будут ссылаться на один базовый массив",
+                        "Ошибка компиляции",
+                        "b станет nil"
+                    ],
+                    correct:[1],
+                    exp:"Присваивание копирует дескриптор, а не данные. Изменение элементов через <code>b</code> видно через <code>a</code>. Для копии используют <code>copy</code>."
+                },
+
+                {
+                    q:"Что означает cap(s)?",
+                    a:[
+                        "Количество элементов",
+                        "Максимальное количество элементов без перевыделения",
+                        "Размер в байтах",
+                        "Количество nil-элементов"
+                    ],
+                    correct:[1],
+                    exp:"<code>cap</code> — ёмкость базового массива от начала среза. Пока <code>len &lt; cap</code>, <code>append</code> может обойтись без перевыделения."
+                }
+            ]
+        },
+
+
+        /* ============================================================
+           СТРОКИ И РУНЫ
+           ============================================================ */
+
+        strings: {
+            icon:"🔤",
+            name:"Строки и руны",
+            q:[
+
+                {
+                    q:"Какие строки в Go?",
+                    a:[
+                        "Изменяемые",
+                        "Неизменяемые",
+                        "Только ASCII",
+                        "Всегда UTF-16"
+                    ],
+                    correct:[1],
+                    exp:"Строки неизменяемы. Любая «модификация» создаёт новую строку. Для сборки удобно использовать <code>strings.Builder</code>."
+                },
+
+                {
+                    q:"Сколько байтов занимает строка \"привет\"?",
+                    a:[
+                        "6",
+                        "12",
+                        "24",
+                        "Зависит от ОС"
+                    ],
+                    correct:[1],
+                    exp:"Кириллическая буква в UTF-8 занимает 2 байта, поэтому 6 букв — <b>12 байтов</b>. <code>len</code> возвращает именно байты."
+                },
+
+                {
+                    q:"Что вернёт utf8.RuneCountInString(\"привет\")?",
+                    a:[
+                        "6",
+                        "12",
+                        "1",
+                        "0"
+                    ],
+                    correct:[0],
+                    exp:"<code>RuneCountInString</code> считает символы (руны), а не байты: в слове 6 букв."
+                },
+
+                {
+                    q:"Что даёт for i, r := range \"Go\"?",
+                    a:[
+                        "i — индекс символа, r — rune",
+                        "i — байт, r — строка",
+                        "i — rune, r — индекс",
+                        "Только r"
+                    ],
+                    correct:[0],
+                    exp:"При <code>range</code> по строке индекс — позиция начала символа в байтах, а значение — <code>rune</code> (Unicode-код)."
+                },
+
+                {
+                    q:"Какая функция разбивает строку по любым пробельным символам и не создаёт пустых элементов?",
+                    a:[
+                        "strings.Split(s, \" \")",
+                        "strings.Fields(s)",
+                        "strings.Trim(s)",
+                        "len(s)"
+                    ],
+                    correct:[1],
+                    exp:"<code>strings.Fields</code> разбивает по пробелам, табам и переводам строк, пропуская повторные разделители."
+                },
+
+                {
+                    q:"Чем rune отличается от byte?",
+                    a:[
+                        "rune — псевдоним int32, byte — псевдоним uint8",
+                        "rune — строка, byte — число",
+                        "Это одно и то же",
+                        "rune занимает 8 бит"
+                    ],
+                    correct:[0],
+                    exp:"<code>rune</code> — псевдоним <code>int32</code> для Unicode-кода символа, <code>byte</code> — псевдоним <code>uint8</code>."
+                }
+            ]
+        },
+
+
+        /* ============================================================
+           СТРУКТУРЫ И МЕТОДЫ
+           ============================================================ */
+
+        structs: {
+            icon:"🏗️",
+            name:"Структуры и методы",
+            q:[
+
+                {
+                    q:"Что произойдёт, если метод с получателем-значением изменит поле?",
+                    a:[
+                        "Поле изменится у оригинала",
+                        "Изменится только копия",
+                        "Ошибка компиляции",
+                        "Паника"
+                    ],
+                    correct:[1],
+                    exp:"Получатель-значение копирует структуру. Чтобы менять оригинал, нужен получатель-указатель: <code>func (r *Rectangle) ...</code>."
+                },
+
+                {
+                    q:"Каким должен быть получатель, чтобы метод менял поле структуры?",
+                    a:[
+                        "Значением",
+                        "Указателем",
+                        "Любым — разницы нет",
+                        "Интерфейсом"
+                    ],
+                    correct:[1],
+                    exp:"Только получатель-указатель даёт доступ к исходной структуре. Тогда изменения видны вызывающему коду."
+                },
+
+                {
+                    q:"Что даёт встраивание Person в Employee?",
+                    a:[
+                        "Копирует все методы в текст Employee",
+                        "Поля и методы Person доступны как поля Employee",
+                        "Запрещает создавать Employee",
+                        "Делает Person приватным"
+                    ],
+                    correct:[1],
+                    exp:"Встраивание продвигает поля и методы: <code>e.Name</code> эквивалентно <code>e.Person.Name</code>. Это способ композиции вместо наследования."
+                },
+
+                {
+                    q:"Чему равны поля новой структуры var p Point?",
+                    a:[
+                        "Нулевым значениям типов полей",
+                        "Не определены — ошибка компиляции",
+                        "nil для всех полей",
+                        "Случайным значениям"
+                    ],
+                    correct:[0],
+                    exp:"Структура инициализируется нулевыми значениями полей: числа — <code>0</code>, строки — <code>\"\"</code>, указатели — <code>nil</code>."
+                },
+
+                {
+                    q:"Как тип становится реализацией интерфейса?",
+                    a:[
+                        "Через ключевое слово implements",
+                        "Неявно: достаточно иметь все методы интерфейса",
+                        "Через наследование",
+                        "Через аннотацию @Override"
+                    ],
+                    correct:[1],
+                    exp:"Реализация интерфейса в Go неявная. Если у типа есть все методы с нужными сигнатурами, он удовлетворяет интерфейсу."
+                },
+
+                {
+                    q:"Зачем пишут функцию NewUser?",
+                    a:[
+                        "Это обязательный конструктор языка",
+                        "Это идиома создания значения с проверкой или настройкой",
+                        "Она заменяет package main",
+                        "Она нужна только для интерфейсов"
+                    ],
+                    correct:[1],
+                    exp:"В Go нет конструкторов. Идиома <code>NewXxx</code> создаёт и возвращает значение (часто указатель), при необходимости выполняя валидацию."
+                }
+            ]
+        },
+
+
+        /* ============================================================
+           MAP
+           ============================================================ */
+
+        maps: {
+            icon:"🗺️",
+            name:"Map и множества",
+            q:[
+
+                {
+                    q:"Что произойдёт при записи в nil-map?",
+                    a:[
+                        "Map создастся автоматически",
+                        "Паника",
+                        "Ошибка компиляции",
+                        "Значение проигнорируется"
+                    ],
+                    correct:[1],
+                    exp:"<code>var m map[string]int</code> — nil-map. Чтение из неё безопасно, а запись вызывает панику. Нужно <code>make(map[string]int)</code>."
+                },
+
+                {
+                    q:"Что вернёт чтение несуществующего ключа из map[string]int?",
+                    a:[
+                        "nil",
+                        "0",
+                        "Панику",
+                        "Ошибку компиляции"
+                    ],
+                    correct:[1],
+                    exp:"Возвращается нулевое значение типа значения: для <code>int</code> это <code>0</code>. Отличить отсутствие ключа помогает comma-ok."
+                },
+
+                {
+                    q:"Что означает v, ok := m[key]?",
+                    a:[
+                        "ok — индекс ключа",
+                        "ok == true, если ключ есть в map",
+                        "v — всегда nil",
+                        "Это ошибка синтаксиса"
+                    ],
+                    correct:[1],
+                    exp:"Второе значение <code>ok</code> показывает, найден ли ключ. Это идиома comma-ok."
+                },
+
+                {
+                    q:"Какая функция удаляет ключ из map?",
+                    a:[
+                        "delete(m, key)",
+                        "remove(m, key)",
+                        "m.Delete(key)",
+                        "m[key] = nil"
+                    ],
+                    correct:[0],
+                    exp:"<code>delete(m, key)</code> удаляет пару. Удаление отсутствующего ключа безопасно."
+                },
+
+                {
+                    q:"В каком порядке for range обходит map?",
+                    a:[
+                        "В порядке добавления",
+                        "По алфавиту",
+                        "Порядок не определён",
+                        "Всегда случайный, но стабильный между запусками"
+                    ],
+                    correct:[2],
+                    exp:"Порядок обхода map не гарантируется. Для стабильного вывода собирают ключи в срез и сортируют."
+                },
+
+                {
+                    q:"Может ли срез быть ключом map?",
+                    a:[
+                        "Да",
+                        "Нет, ключ должен быть сравним",
+                        "Только []byte",
+                        "Только []int"
+                    ],
+                    correct:[1],
+                    exp:"Ключ map должен поддерживать сравнение. Срезы, map и функции сравнивать нельзя, поэтому они не подходят как ключи."
+                }
+            ]
+        },
+
+
+        /* ============================================================
+           ОШИБКИ И DEFER
+           ============================================================ */
+
+        errors: {
+            icon:"⚠️",
+            name:"Ошибки и defer",
+            q:[
+
+                {
+                    q:"Какой метод должен быть у типа, чтобы он считался ошибкой?",
+                    a:[
+                        "Error() string",
+                        "String() error",
+                        "Message() string",
+                        "Err() bool"
+                    ],
+                    correct:[0],
+                    exp:"Интерфейс <code>error</code> содержит один метод <code>Error() string</code>. Любой тип с таким методом является ошибкой."
+                },
+
+                {
+                    q:"Как создать простую ошибку?",
+                    a:[
+                        "errors.New(\"текст\")",
+                        "new Error(\"текст\")",
+                        "err := \"текст\"",
+                        "panic.New(\"текст\")"
+                    ],
+                    correct:[0],
+                    exp:"<code>errors.New</code> создаёт ошибку с фиксированным текстом. Для форматирования используют <code>fmt.Errorf</code>."
+                },
+
+                {
+                    q:"Что означает err == nil?",
+                    a:[
+                        "Произошла ошибка",
+                        "Ошибки нет",
+                        "Ошибка пустая",
+                        "err не объявлен"
+                    ],
+                    correct:[1],
+                    exp:"В Go <code>nil</code> для ошибки означает успех. Ошибку проверяют сразу после вызова функции."
+                },
+
+                {
+                    q:"В каком порядке выполняются несколько defer в одной функции?",
+                    a:[
+                        "В порядке объявления",
+                        "В обратном порядке (LIFO)",
+                        "Случайно",
+                        "Только последний"
+                    ],
+                    correct:[1],
+                    exp:"Отложенные вызовы складываются в стек и выполняются в обратном порядке: последний defer — первым."
+                },
+
+                {
+                    q:"Где работает recover?",
+                    a:[
+                        "В любом месте функции",
+                        "Только внутри отложенной функции (defer)",
+                        "Только в main",
+                        "Только в горутине"
+                    ],
+                    correct:[1],
+                    exp:"<code>recover</code> перехватывает панику только при вызове из <code>defer</code>. Вне отложенной функции он возвращает <code>nil</code>."
+                },
+
+                {
+                    q:"Зачем нужна errors.Is?",
+                    a:[
+                        "Сравнить текст ошибок",
+                        "Проверить, есть ли конкретная ошибка в цепочке",
+                        "Создать новую ошибку",
+                        "Вызвать панику"
+                    ],
+                    correct:[1],
+                    exp:"<code>errors.Is(err, target)</code> проходит по цепочке обёрнутых ошибок и проверяет совпадение с целевой, например <code>os.ErrNotExist</code>."
+                }
+            ]
+        },
+
+
+        /* ============================================================
+           ФАЙЛЫ
+           ============================================================ */
+
+        files: {
+            icon:"📁",
+            name:"Файлы",
+            q:[
+
+                {
+                    q:"Что возвращает os.ReadFile?",
+                    a:[
+                        "string и error",
+                        "[]byte и error",
+                        "*os.File",
+                        "Только []byte"
+                    ],
+                    correct:[1],
+                    exp:"<code>os.ReadFile</code> возвращает содержимое как <code>[]byte</code> и ошибку. Строку получают через <code>string(data)</code>."
+                },
+
+                {
+                    q:"Что нужно сделать перед использованием данных из os.ReadFile?",
+                    a:[
+                        "Проверить err",
+                        "Закрыть файл",
+                        "Вызвать recover",
+                        "Привести к int"
+                    ],
+                    correct:[0],
+                    exp:"При ошибке данные недействительны. Сначала проверяют <code>err</code>, затем работают с <code>data</code>."
+                },
+
+                {
+                    q:"Что означает 0644 в os.WriteFile?",
+                    a:[
+                        "Размер файла",
+                        "Права доступа к файлу",
+                        "Количество строк",
+                        "Кодировку"
+                    ],
+                    correct:[1],
+                    exp:"<code>0644</code> — восьмеричные права: владелец читает и пишет, остальные только читают."
+                },
+
+                {
+                    q:"Зачем нужен defer f.Close() после открытия файла?",
+                    a:[
+                        "Чтобы файл закрылся при выходе из функции",
+                        "Чтобы прочитать файл",
+                        "Чтобы изменить права",
+                        "Он не нужен"
+                    ],
+                    correct:[0],
+                    exp:"<code>defer</code> гарантирует закрытие файла даже при раннем <code>return</code> или панике."
+                },
+
+                {
+                    q:"Относительно чего разрешается относительный путь к файлу?",
+                    a:[
+                        "Домашнего каталога",
+                        "Текущего рабочего каталога процесса",
+                        "Каталога бинарника",
+                        "Корня диска"
+                    ],
+                    correct:[1],
+                    exp:"Относительные пути считаются от текущего рабочего каталога. В тестах это каталог задания."
+                },
+
+                {
+                    q:"Как проверить, что файл не существует?",
+                    a:[
+                        "err == \"not found\"",
+                        "errors.Is(err, os.ErrNotExist)",
+                        "os.NotExist(err)",
+                        "len(err) == 0"
+                    ],
+                    correct:[1],
+                    exp:"Современный способ — <code>errors.Is(err, os.ErrNotExist)</code>. Он работает и с обёрнутыми ошибками."
+                }
+            ]
+        },
+
+
+        /* ============================================================
+           ГОРУТИНЫ И КАНАЛЫ
+           ============================================================ */
+
+        concurrency: {
+            icon:"⚡",
+            name:"Горутины и каналы",
+            q:[
+
+                {
+                    q:"Как запустить функцию f в отдельной горутине?",
+                    a:[
+                        "go f()",
+                        "thread f()",
+                        "async f()",
+                        "f.go()"
+                    ],
+                    correct:[0],
+                    exp:"Ключевое слово <code>go</code> перед вызовом запускает функцию параллельно: <code>go f()</code>."
+                },
+
+                {
+                    q:"Что происходит при отправке в небуферизованный канал, если никто не читает?",
+                    a:[
+                        "Значение теряется",
+                        "Отправка блокируется",
+                        "Паника",
+                        "Ошибка компиляции"
+                    ],
+                    correct:[1],
+                    exp:"Небуферизованный канал синхронизирует отправителя и получателя: отправка ждёт, пока кто-то прочитает."
+                },
+
+                {
+                    q:"Что произойдёт с range по каналу после его закрытия?",
+                    a:[
+                        "Цикл завершится после чтения оставшихся значений",
+                        "Паника",
+                        "Цикл продолжится бесконечно",
+                        "Значения обнулятся"
+                    ],
+                    correct:[0],
+                    exp:"<code>range</code> читает оставшиеся значения, затем завершается, когда канал закрыт и опустошён."
+                },
+
+                {
+                    q:"Как защитить общий счётчик от гонок?",
+                    a:[
+                        "sync.Mutex вокруг изменения",
+                        "Увеличить тип до int64",
+                        "Вызвать runtime.GC()",
+                        "Добавить time.Sleep"
+                    ],
+                    correct:[0],
+                    exp:"Критическую секцию защищают <code>mu.Lock()</code> / <code>mu.Unlock()</code>. Альтернатива — атомарные операции или канал."
+                },
+
+                {
+                    q:"Какие методы sync.WaitGroup используются для ожидания горутин?",
+                    a:[
+                        "Add, Done, Wait",
+                        "Lock, Unlock",
+                        "Send, Receive",
+                        "Start, Stop"
+                    ],
+                    correct:[0],
+                    exp:"<code>Add</code> увеличивает счётчик, <code>Done</code> уменьшает, <code>Wait</code> блокируется до нуля."
+                },
+
+                {
+                    q:"Что такое гонка данных (data race)?",
+                    a:[
+                        "Два потока обращаются к одной памяти, хотя бы один пишет, без синхронизации",
+                        "Два потока выполняются одновременно",
+                        "Поток завершился раньше",
+                        "Утечка горутин"
+                    ],
+                    correct:[0],
+                    exp:"Гонка возникает при несинхронизированном доступе к общей памяти, где хотя бы одна операция — запись. Результат непредсказуем."
+                }
+            ]
+        },
+
+
+        /* ============================================================
+           REFLECTION И ДЖЕНЕРИКИ
+           ============================================================ */
+
+        widum: {
+            icon:"🔍",
+            name:"Reflection и дженерики",
+            note:"Раздел 13: advanced",
+            src:true,
+            q:[
+
+                {
+                    q:"Как получить информацию о типе значения в runtime?",
+                    a:[
+                        "reflect.TypeOf(v)",
+                        "typeof v",
+                        "v.type",
+                        "type(v)"
+                    ],
+                    correct:[0],
+                    exp:"<code>reflect.TypeOf(v)</code> возвращает <code>reflect.Type</code>, а <code>reflect.ValueOf(v)</code> — значение для работы с полями и методами."
+                },
+
+                {
+                    q:"Какой синтаксис у type switch?",
+                    a:[
+                        "switch v.(type) { ... }",
+                        "switch type(v) { ... }",
+                        "switch typeof v { ... }",
+                        "switch v.type { ... }"
+                    ],
+                    correct:[0],
+                    exp:"В type switch пишут <code>switch x := v.(type)</code>. В каждой ветке переменная <code>x</code> имеет конкретный тип."
+                },
+
+                {
+                    q:"Что означает ограничение [T int | float64]?",
+                    a:[
+                        "T может быть int или float64",
+                        "T — массив из двух типов",
+                        "T обязан быть интерфейсом",
+                        "T может быть любым типом"
+                    ],
+                    correct:[0],
+                    exp:"<code>int | float64</code> — union-ограничение: параметр типа принимает только перечисленные типы."
+                },
+
+                {
+                    q:"Как узнать количество полей структуры через reflection?",
+                    a:[
+                        "v.NumField()",
+                        "t.NumField()",
+                        "len(v.Fields)",
+                        "reflect.Count(v)"
+                    ],
+                    correct:[1],
+                    exp:"У <code>reflect.Type</code> есть <code>NumField()</code>. У значения <code>reflect.Value</code> такого метода нет — сначала берут <code>v.Type()</code>."
+                },
+
+                {
+                    q:"Как вызвать метод по имени через reflection?",
+                    a:[
+                        "v.MethodByName(\"Add\").Call(args)",
+                        "v.Call(\"Add\", args)",
+                        "reflect.Invoke(v, \"Add\")",
+                        "v.Method(\"Add\")"
+                    ],
+                    correct:[0],
+                    exp:"<code>MethodByName</code> возвращает <code>reflect.Value</code> метода, а <code>Call</code> принимает срез аргументов и возвращает срез результатов."
+                },
+
+                {
+                    q:"Чем any отличается от interface{}?",
+                    a:[
+                        "Это полный синоним",
+                        "any допускает только числа",
+                        "any работает только в дженериках",
+                        "interface{} устарел и удалён"
+                    ],
+                    correct:[0],
+                    exp:"<code>any</code> — псевдоним <code>interface{}</code>, введённый в Go 1.18. Использование идентично."
+                }
+            ]
+        }
+    };
+
+
+    /* ============================================================
+       THEME / FONT
+       ============================================================ */
+
+    const root = document.documentElement;
+
+    const themeSelect = document.getElementById("themeSelect");
+    const fontSlider = document.getElementById("fontSlider");
+    const fontVal = document.getElementById("fontVal");
+
+    function setTheme(theme) {
+        root.setAttribute("data-theme", theme);
+
+        themeSelect.value = theme;
+
+        try {
+            localStorage.setItem(
+                "go-practice-quiz-theme",
+                theme
+            );
+        } catch (e) {}
+    }
+
+    function setFontSize(val) {
+        root.style.setProperty(
+            "--fs-base",
+            val + "px"
+        );
+
+        fontVal.textContent = val;
+        fontSlider.value = val;
+
+        try {
+            localStorage.setItem(
+                "go-practice-quiz-font",
+                val
+            );
+        } catch (e) {}
+    }
+
+    themeSelect.addEventListener(
+        "change",
+        function () {
+            setTheme(this.value);
+        }
+    );
+
+    fontSlider.addEventListener(
+        "input",
+        function () {
+            setFontSize(this.value);
+        }
+    );
+
+    (function () {
+        let savedTheme = null;
+        let savedFont = null;
+
+        try {
+            savedTheme =
+                localStorage.getItem(
+                    "go-practice-quiz-theme"
+                );
+
+            savedFont =
+                localStorage.getItem(
+                    "go-practice-quiz-font"
+                );
+        } catch (e) {}
+
+        setTheme(
+            savedTheme || "catppuccin"
+        );
+
+        setFontSize(
+            savedFont || "15"
+        );
+    })();
+
+
+    /* ============================================================
+       HELPERS
+       ============================================================ */
+
+    const KEYS = [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+    ];
+
+    const $ = id =>
+        document.getElementById(id);
+
+    const screens = {
+        menu: $("menu"),
+        quiz: $("quiz"),
+        results: $("results")
+    };
+
+    let session = null;
+
+
+    function show(name) {
+        for (const k in screens) {
+            screens[k].classList.toggle(
+                "hidden",
+                k !== name
+            );
+        }
+
+        window.scrollTo({
+            top:0,
+            behavior:"instant"
+        });
+    }
+
+
+    function shuffle(a) {
+        for (
+            let i = a.length - 1;
+            i > 0;
+            i--
+        ) {
+            const j =
+                Math.floor(
+                    Math.random() * (i + 1)
+                );
+
+            [
+                a[i],
+                a[j]
+            ] = [
+                a[j],
+                a[i]
+            ];
+        }
+
+        return a;
+    }
+
+
+    function plural(
+        n,
+        one,
+        few,
+        many
+    ) {
+        const m10 = n % 10;
+        const m100 = n % 100;
+
+        if (
+            m10 === 1 &&
+            m100 !== 11
+        ) {
+            return one;
+        }
+
+        if (
+            m10 >= 2 &&
+            m10 <= 4 &&
+            (
+                m100 < 10 ||
+                m100 >= 20
+            )
+        ) {
+            return few;
+        }
+
+        return many;
+    }
+
+
+    function el(
+        tag,
+        cls,
+        txt
+    ) {
+        const n =
+            document.createElement(tag);
+
+        if (cls) {
+            n.className = cls;
+        }
+
+        if (txt !== undefined) {
+            n.textContent = txt;
+        }
+
+        return n;
+    }
+
+
+    /* ============================================================
+       MENU
+       ============================================================ */
+
+    function buildMenu() {
+        const grid =
+            $("topicGrid");
+
+        grid.replaceChildren();
+
+        for (const key in BANK) {
+
+            const t =
+                BANK[key];
+
+            const b =
+                el(
+                    "button",
+                    "topic" +
+                    (
+                        t.src
+                            ? " special"
+                            : ""
+                    )
+                );
+
+            b.append(
+                el(
+                    "span",
+                    "t-icon",
+                    t.icon
+                ),
+
+                el(
+                    "div",
+                    "t-name",
+                    t.name
+                ),
+
+                el(
+                    "div",
+                    "t-count",
+                    t.q.length +
+                    " " +
+                    plural(
+                        t.q.length,
+                        "вопрос",
+                        "вопроса",
+                        "вопросов"
+                    )
+                )
+            );
+
+            if (t.note) {
+                b.appendChild(
+                    el(
+                        "div",
+                        "t-note",
+                        "⚠ " + t.note
+                    )
+                );
+            }
+
+            b.addEventListener(
+                "click",
+                () => {
+
+                    const qs =
+                        t.q.map(
+                            q => ({
+                                ...q,
+                                _topic:t.name,
+                                _src:!!t.src
+                            })
+                        );
+
+                    startQuiz(
+                        t.name,
+                        shuffle(qs)
+                    );
+                }
+            );
+
+            grid.appendChild(b);
+        }
+    }
+
+
+    $("rndStart").addEventListener(
+        "click",
+        () => {
+
+            const want =
+                Math.max(
+                    5,
+                    Math.min(
+                        150,
+                        parseInt(
+                            $("rndCount").value
+                        ) || 20
+                    )
+                );
+
+            const useW =
+                $("rndWidum").checked;
+
+            const pools = [];
+
+            for (const key in BANK) {
+
+                if (
+                    key === "widum" &&
+                    !useW
+                ) {
+                    continue;
+                }
+
+                pools.push(
+                    BANK[key].q.map(
+                        q => ({
+                            ...q,
+                            _topic:BANK[key].name,
+                            _src:!!BANK[key].src
+                        })
+                    )
+                );
+            }
+
+            const per =
+                Math.ceil(
+                    want / pools.length
+                );
+
+            let picked = [];
+
+            pools.forEach(
+                p => {
+                    picked =
+                        picked.concat(
+                            shuffle(
+                                p.slice()
+                            ).slice(0, per)
+                        );
+                }
+            );
+
+            picked =
+                shuffle(picked).slice(
+                    0,
+                    want
+                );
+
+            if (!picked.length) {
+                alert(
+                    "Нет доступных вопросов."
+                );
+
+                return;
+            }
+
+            startQuiz(
+                "🎲 Случайный набор",
+                picked,
+                true
+            );
+        }
+    );
+
+
+    /* ============================================================
+       QUIZ
+       ============================================================ */
+
+    function startQuiz(
+        title,
+        questions,
+        showTopic
+    ) {
+        session = {
+            title,
+            questions,
+            showTopic:!!showTopic,
+            idx:0,
+            ok:0,
+            bad:0,
+            log:[]
+        };
+
+        $("quizTitle").textContent =
+            title;
+
+        $("stack").replaceChildren();
+
+        updateBar();
+
+        show("quiz");
+
+        addQuestionCard();
+    }
+
+
+    function updateBar() {
+
+        const s =
+            session;
+
+        $("pillOk").textContent =
+            "✓ " + s.ok;
+
+        $("pillBad").textContent =
+            "✗ " + s.bad;
+
+        $("progFill").style.width =
+            (
+                s.idx /
+                s.questions.length *
+                100
+            ) + "%";
+    }
+
+
+    function addQuestionCard() {
+
+        const s =
+            session;
+
+        const q =
+            s.questions[s.idx];
+
+        const multi =
+            q.correct.length > 1;
+
+        const num =
+            s.idx;
+
+        const card =
+            el(
+                "div",
+                "card"
+            );
+
+        card.dataset.idx =
+            num;
+
+
+        /* ------------------------------------------------------------
+           TOP TAGS
+           ------------------------------------------------------------ */
+
+        const top =
+            el(
+                "div",
+                "q-top"
+            );
+
+        top.appendChild(
+            el(
+                "span",
+                "q-num",
+                `Вопрос ${num + 1} / ${s.questions.length}`
+            )
+        );
+
+        if (multi) {
+            top.appendChild(
+                el(
+                    "span",
+                    "tag multi",
+                    "Несколько ответов"
+                )
+            );
+        }
+
+        if (q._src) {
+            top.appendChild(
+                el(
+                    "span",
+                    "tag src",
+                    "раздел 13"
+                )
+            );
+        }
+
+        if (
+            s.showTopic &&
+            q._topic &&
+            !q._src
+        ) {
+            top.appendChild(
+                el(
+                    "span",
+                    "tag topic",
+                    q._topic
+                )
+            );
+        }
+
+        card.appendChild(top);
+
+
+        /* ------------------------------------------------------------
+           QUESTION
+           ------------------------------------------------------------ */
+
+        card.appendChild(
+            el(
+                "div",
+                "q-text",
+                q.q
+            )
+        );
+
+
+        /* ------------------------------------------------------------
+           OPTIONS
+           ------------------------------------------------------------ */
+
+        const opts =
+            el(
+                "div",
+                "opts"
+            );
+
+        const picked = [];
+        const btns = [];
+
+        q.a.forEach(
+            (text, i) => {
+
+                const b =
+                    el(
+                        "button",
+                        "opt"
+                    );
+
+                b.append(
+                    el(
+                        "span",
+                        "okey",
+                        KEYS[i]
+                    ),
+
+                    el(
+                        "span",
+                        "otext",
+                        text
+                    ),
+
+                    el(
+                        "span",
+                        "omark"
+                    )
+                );
+
+                b.addEventListener(
+                    "click",
+                    () => {
+
+                        if (
+                            card.dataset.done
+                        ) {
+                            return;
+                        }
+
+                        if (multi) {
+
+                            const p =
+                                picked.indexOf(i);
+
+                            if (p === -1) {
+                                picked.push(i);
+                                b.classList.add(
+                                    "sel"
+                                );
+                            } else {
+                                picked.splice(
+                                    p,
+                                    1
+                                );
+
+                                b.classList.remove(
+                                    "sel"
+                                );
+                            }
+
+                            checkBtn.disabled =
+                                picked.length === 0;
+
+                        } else {
+
+                            picked.length = 0;
+                            picked.push(i);
+
+                            reveal();
+                        }
+                    }
+                );
+
+                btns.push(b);
+                opts.appendChild(b);
+            }
+        );
+
+        card.appendChild(opts);
+
+
+        /* ------------------------------------------------------------
+           CHECK BUTTON
+           ------------------------------------------------------------ */
+
+        const checkWrap =
+            el(
+                "div",
+                "next-wrap"
+            );
+
+        const checkBtn =
+            el(
+                "button",
+                "primary next-btn",
+                "Проверить"
+            );
+
+        checkBtn.disabled =
+            true;
+
+        checkBtn.addEventListener(
+            "click",
+            reveal
+        );
+
+        if (multi) {
+            checkWrap.appendChild(
+                checkBtn
+            );
+
+            card.appendChild(
+                checkWrap
+            );
+        }
+
+
+        $("stack").appendChild(card);
+
+        card.scrollIntoView({
+            behavior:"smooth",
+            block:"center"
+        });
+
+
+        /* ------------------------------------------------------------
+           REVEAL
+           ------------------------------------------------------------ */
+
+        function reveal() {
+
+            if (
+                card.dataset.done
+            ) {
+                return;
+            }
+
+            card.dataset.done =
+                "1";
+
+            card.classList.add(
+                "done"
+            );
+
+            checkWrap.remove();
+
+
+            const right =
+                q.correct
+                    .slice()
+                    .sort()
+                    .join(",");
+
+            const mine =
+                picked
+                    .slice()
+                    .sort()
+                    .join(",");
+
+            const isOk =
+                right === mine;
+
+
+            btns.forEach(
+                (b, i) => {
+
+                    b.disabled =
+                        true;
+
+                    b.classList.remove(
+                        "sel"
+                    );
+
+                    const mark =
+                        b.querySelector(
+                            ".omark"
+                        );
+
+                    if (
+                        q.correct.includes(i)
+                    ) {
+
+                        if (
+                            picked.includes(i)
+                        ) {
+
+                            b.classList.add(
+                                "right"
+                            );
+
+                            mark.textContent =
+                                "✓";
+
+                        } else {
+
+                            b.classList.add(
+                                "miss"
+                            );
+
+                            mark.textContent =
+                                "!";
+                        }
+
+                    } else if (
+                        picked.includes(i)
+                    ) {
+
+                        b.classList.add(
+                            "bad"
+                        );
+
+                        mark.textContent =
+                            "✗";
+                    }
+                }
+            );
+
+
+            if (isOk) {
+                s.ok++;
+            } else {
+                s.bad++;
+            }
+
+
+            s.log.push({
+                q:q.q,
+                ok:isOk
+            });
+
+
+            /* --------------------------------------------------------
+               EXPLANATION
+               -------------------------------------------------------- */
+
+            const exp =
+                el(
+                    "div",
+                    "exp " +
+                    (
+                        isOk
+                            ? "ok"
+                            : "no"
+                    )
+                );
+
+            exp.appendChild(
+                el(
+                    "div",
+                    "exp-head",
+                    isOk
+                        ? "✓ Верно!"
+                        : "✗ Неверно"
+                )
+            );
+
+
+            const body =
+                el(
+                    "div",
+                    "exp-body"
+                );
+
+
+            const rl =
+                el(
+                    "div",
+                    "exp-right"
+                );
+
+            const rb =
+                el("b");
+
+            rb.textContent =
+                q.correct.length > 1
+                    ? "Правильные ответы: "
+                    : "Правильный ответ: ";
+
+            rl.appendChild(rb);
+
+            rl.appendChild(
+                document.createTextNode(
+                    q.correct
+                        .map(
+                            i =>
+                                KEYS[i] +
+                                ") " +
+                                q.a[i]
+                        )
+                        .join("  ·  ")
+                )
+            );
+
+            body.appendChild(rl);
+
+
+            const why =
+                el(
+                    "div",
+                    "exp-why"
+                );
+
+            why.innerHTML =
+                q.exp;
+
+            body.appendChild(why);
+
+            exp.appendChild(body);
+
+            card.appendChild(exp);
+
+
+            /* --------------------------------------------------------
+               NEXT BUTTON
+               -------------------------------------------------------- */
+
+            const nw =
+                el(
+                    "div",
+                    "next-wrap"
+                );
+
+            const isLast =
+                s.idx ===
+                s.questions.length - 1;
+
+            const nb =
+                el(
+                    "button",
+                    "primary next-btn",
+                    isLast
+                        ? "Показать результаты →"
+                        : "Следующий вопрос →"
+                );
+
+            nb.addEventListener(
+                "click",
+                () => {
+
+                    nw.remove();
+
+                    s.idx++;
+
+                    updateBar();
+
+                    if (
+                        s.idx >=
+                        s.questions.length
+                    ) {
+                        showResults();
+                    } else {
+                        addQuestionCard();
+                    }
+                }
+            );
+
+            nw.appendChild(nb);
+
+            card.appendChild(nw);
+
+
+            updateBar();
+
+
+            setTimeout(
+                () => {
+                    nb.scrollIntoView({
+                        behavior:"smooth",
+                        block:"center"
+                    });
+                },
+                120
+            );
+        }
+    }
+
+
+    /* ============================================================
+       EXIT
+       ============================================================ */
+
+    $("quitBtn").addEventListener(
+        "click",
+        () => {
+
+            if (
+                session &&
+                session.idx > 0 &&
+                !confirm(
+                    "Выйти? Прогресс не сохранится."
+                )
+            ) {
+                return;
+            }
+
+            show("menu");
+        }
+    );
+
+
+    /* ============================================================
+       RESULTS
+       ============================================================ */
+
+    function showResults() {
+
+        const s =
+            session;
+
+        const total =
+            s.questions.length;
+
+        const pct =
+            Math.round(
+                s.ok /
+                total *
+                100
+            );
+
+        let emo;
+        let title;
+        let grade;
+
+        if (pct === 100) {
+
+            emo = "🏆";
+            title = "Идеально!";
+            grade =
+                "Все ответы верны. Так держать!";
+
+        } else if (pct >= 85) {
+
+            emo = "🎉";
+            title = "Отлично!";
+            grade =
+                "Тема освоена очень хорошо.";
+
+        } else if (pct >= 70) {
+
+            emo = "👍";
+            title = "Хорошо";
+            grade =
+                "Крепкий результат, но есть что подтянуть.";
+
+        } else if (pct >= 50) {
+
+            emo = "📚";
+            title = "Неплохо";
+            grade =
+                "Стоит повторить теорию и пройти ещё раз.";
+
+        } else {
+
+            emo = "💪";
+            title = "Есть над чем поработать";
+            grade =
+                "Загляни в theory.md и попробуй снова.";
+        }
+
+
+        $("resEmo").textContent =
+            emo;
+
+        $("resTitle").textContent =
+            title;
+
+        $("resGrade").textContent =
+            grade;
+
+        $("sOk").textContent =
+            s.ok;
+
+        $("sBad").textContent =
+            s.bad;
+
+        $("sPct").textContent =
+            pct + "%";
+
+        $("reviewBtn").classList.toggle(
+            "hidden",
+            s.bad === 0
+        );
+
+        show("results");
+    }
+
+
+    $("retryBtn").addEventListener(
+        "click",
+        () => {
+
+            startQuiz(
+                session.title,
+                shuffle(
+                    session.questions.slice()
+                ),
+                session.showTopic
+            );
+        }
+    );
+
+
+    $("reviewBtn").addEventListener(
+        "click",
+        () => {
+
+            screens.results.classList.add(
+                "hidden"
+            );
+
+            screens.quiz.classList.remove(
+                "hidden"
+            );
+
+            const first =
+                document.querySelector(
+                    ".card .exp.no"
+                );
+
+            if (first) {
+
+                first.scrollIntoView({
+                    behavior:"smooth",
+                    block:"center"
+                });
+
+            } else {
+
+                window.scrollTo({
+                    top:0,
+                    behavior:"smooth"
+                });
+            }
+        }
+    );
+
+
+    $("menuBtn").addEventListener(
+        "click",
+        () => show("menu")
+    );
+
+
+    /* ============================================================
+       INIT
+       ============================================================ */
+
+    buildMenu();
+
+</script>
+
+</body>
+</html>
